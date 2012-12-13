@@ -1,7 +1,7 @@
 # kaufman
 
-A script to process Kaufman & Justeson's 2003 "A Preliminary Mayan
-Etymological Dictionary" (http://www.famsi.org/reports/01051/index.html)
+A script to process Kaufman & Justeson's 2003
+[A Preliminary Mayan Etymological Dictionary](http://www.famsi.org/reports/01051/index.html)
 into a form more suitable for further computational manipulation.
 
 kaufman.core contains two versions of the data: `processed`, a
@@ -11,10 +11,9 @@ structure of the source is encoded in the values of attributes. The
 latter form is intended to be easy to transform into a relational database.
 
 Includes plaintext copy of the dictionary, scraped from the source PDF
-by means of pdfminer (http://www.unixuser.org/~euske/python/pdfminer/index.html).
+by means of [pdfminer](http://www.unixuser.org/~euske/python/pdfminer/index.html).
 This text file has been trivially cleaned to remove some lines that
 cause the script problems.
-
 
 ## Usage
 
