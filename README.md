@@ -17,9 +17,12 @@ cause the script problems.
 
 ## Usage
 
-Load the kaufman.core namespace in a REPL. Wait for the values of
+1. Download the repository and run `lein deps` in its root directory to download dependencies.
+
+2. Load the kaufman.core namespace in a REPL. Wait for the values of
 `processed` and `relational` to finish computing, which takes a while.
-Then do whatever you want with those values.
+
+3. Do whatever you want with those values.
 
 ## License
 
