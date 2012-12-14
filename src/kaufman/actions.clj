@@ -222,7 +222,7 @@
     #(map divide-data-chunk %)
     data))
 
-;; Filter the results to eliminate blanks lexemes.
+;; Filter the results to eliminate blank lexemes.
 (defn eliminate-blank-lexemes [data]
   (map-vals-mmsms
     (fn [b] (filter #(get % :lexeme) b))

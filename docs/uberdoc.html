@@ -3192,7 +3192,7 @@ in a maximally informative way, into maps representing their contents.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn turn-lines-into-maps [data]
   (map-vals-mmsms
     #(map divide-data-chunk %)
-    data))</pre></td></tr><tr><td class="docs"><p>Filter the results to eliminate blanks lexemes.</p>
+    data))</pre></td></tr><tr><td class="docs"><p>Filter the results to eliminate blank lexemes.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn eliminate-blank-lexemes [data]
   (map-vals-mmsms
     (fn [b] (filter #(get % :lexeme) b))
