@@ -3087,10 +3087,10 @@ Such lines, unlike lines that just start with %%, are not meaningful and can be 
     (fn [x] (not (re-seq #&quot;^\%+\s*$&quot; x)))
     data))</pre></td></tr><tr><td class="docs"><p>Partition the data by lines that start with %%, turning the
 result into a map, as described above.
-At this point it's convenient to apply a cleaning function <code>clean-p-block</code>
+At this point it's convenient to apply a cleaning function <code>clean-p-key</code>
 to strip off the meaningless crud that encloses the %%-keys.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by-percent-delimiters [data]
-  (map #(update-in % [0] (fn [s] (clean-p-block (first s))))
+  (map #(update-in % [0] (fn [s] (clean-p-key (first s))))
        (pairs (partition-by #(.startsWith % &quot;%% &quot;) data))))</pre></td></tr><tr><td class="docs"><p>Note that we do not create a real map, just a sequence of <code>[k v]</code> pairs.
 This is because we will be, at all points, treating the map as a sequence
 and iterating over its component <code>[k v]</code> pairs. So there's really no point
