@@ -69,8 +69,10 @@
 
 ;; Partition the data by lines that start with %%, turning the
 ;; result into a map, as described above.
+;; At this point it's convenient to apply a cleaning function `clean-p-block`
+;; to strip off the meaningless crud that encloses the %%-keys.
 (defn group-by-percent-delimiters [data]
-  (map #(update-in % [0] first)
+  (map #(update-in % [0] (fn [s] (clean-p-block (first s))))
        (pairs (partition-by #(.startsWith % "%% ") data))))
 
 ;; Note that we do not create a real map, just a sequence of `[k v]` pairs.
@@ -275,11 +277,11 @@
                                 (map 
                                   (fn [h]
                                     (into 
-                                      {:semantics-top kp
-                                       :semantics-x kx
-                                       :eq-block (str (gensym))
-                                       :root kr
-                                       :space-block (str (gensym))}
+                                      {:semantic-field-block kp
+                                       :related-gloss-block kx
+                                       :common-root-block (str (gensym))
+                                       :cognate-block (str (gensym))
+                                       :root kr}
                                       h))
                                   bs))
                               vr)))

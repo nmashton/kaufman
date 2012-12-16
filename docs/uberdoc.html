@@ -3086,9 +3086,11 @@ Such lines, unlike lines that just start with %%, are not meaningful and can be 
   (filter
     (fn [x] (not (re-seq #&quot;^\%+\s*$&quot; x)))
     data))</pre></td></tr><tr><td class="docs"><p>Partition the data by lines that start with %%, turning the
-result into a map, as described above.</p>
+result into a map, as described above.
+At this point it's convenient to apply a cleaning function <code>clean-p-block</code>
+to strip off the meaningless crud that encloses the %%-keys.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn group-by-percent-delimiters [data]
-  (map #(update-in % [0] first)
+  (map #(update-in % [0] (fn [s] (clean-p-block (first s))))
        (pairs (partition-by #(.startsWith % &quot;%% &quot;) data))))</pre></td></tr><tr><td class="docs"><p>Note that we do not create a real map, just a sequence of <code>[k v]</code> pairs.
 This is because we will be, at all points, treating the map as a sequence
 and iterating over its component <code>[k v]</code> pairs. So there's really no point
@@ -3239,11 +3241,11 @@ of simple maps, suitable for porting into a relational database or the like.</p>
                                 (map 
                                   (fn [h]
                                     (into 
-                                      {:semantics-top kp
-                                       :semantics-x kx
-                                       :eq-block (str (gensym))
-                                       :root kr
-                                       :space-block (str (gensym))}
+                                      {:semantic-field-block kp
+                                       :related-gloss-block kx
+                                       :common-root-block (str (gensym))
+                                       :cognate-block (str (gensym))
+                                       :root kr}
                                       h))
                                   bs))
                               vr)))
@@ -3333,7 +3335,9 @@ these, each of which used to be defined separately. Oy!</p>
 (defn split-on-eq [vs]
   (split-seq #(.startsWith % &quot;=====&quot;) vs))
 (defn split-on-blanks [vs]
-  (split-seq #(empty? (.trim %)) vs))</pre></td></tr><tr><td class="docs"><p>Takes a line (the first line to come after
+  (split-seq #(empty? (.trim %)) vs))</pre></td></tr><tr><td class="docs"><p>A function for cleaning up the values of the top-level semantic block keys.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn clean-p-key [s]
+  (.trim (first (re-seq #&quot;[^\%]+&quot; s))))</pre></td></tr><tr><td class="docs"><p>Takes a line (the first line to come after
 the xx-delimiter) and returns the "key" it contains if it's there or
 a gensymmed value if it's not.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn xx-line-semantics [x]

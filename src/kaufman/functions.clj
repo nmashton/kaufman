@@ -66,6 +66,10 @@
 (defn split-on-blanks [vs]
   (split-seq #(empty? (.trim %)) vs))
 
+;; A function for cleaning up the values of the top-level semantic block keys.
+(defn clean-p-key [s]
+  (.trim (first (re-seq #"[^\%]+" s))))
+
 ;; Takes a line (the first line to come after
 ;; the xx-delimiter) and returns the "key" it contains if it's there or
 ;; a gensymmed value if it's not.
