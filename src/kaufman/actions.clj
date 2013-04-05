@@ -199,7 +199,7 @@
 (defn group-by-root-lines [data]
   (map-vals-mms
     (fn [xs]
-      (map #(update-in % [0] first) xs))
+      (map #(update-in % [0] (fn [s] (.trim (first s)))) xs))
     (pair-root-lines data)))
 
 
@@ -268,24 +268,26 @@
               (flatten 
                 (map 
                   (fn [es]
-                    (flatten 
-                      (map 
-                        (fn [[kr vr]]
-                          (flatten 
-                            (map 
-                              (fn [bs]
-                                (map 
-                                  (fn [h]
-                                    (into 
-                                      {:semantic-field-block kp
-                                       :related-gloss-block kx
-                                       :common-root-block (str (gensym))
-                                       :cognate-block (str (gensym))
-                                       :root kr}
-                                      h))
-                                  bs))
+                    (let [ke (str (gensym))]
+                      (flatten 
+                        (map 
+                          (fn [[kr vr]]
+                            (flatten 
+                              (map 
+                                (fn [bs]
+                                  (let [kb (str (gensym))]
+                                    (map 
+                                      (fn [h]
+                                        (into 
+                                          {:semantic-field-block kp
+                                           :related-gloss-block kx
+                                           :common-root-block ke
+                                           :cognate-block kb
+                                           :root kr}
+                                          h))
+                                  bs)))
                               vr)))
-                        es)))
+                        es))))
                   vx)))
             vp)))
 data)))
