@@ -1,117 +1,184 @@
 ;; Auxiliary functions, assisting with the text-wrangling transformations defined elsewhere.
 (ns kaufman.functions
-	(:use [clojure.string :only [split join]]))
+  (:use [clojure.string :only [split join]])
+  (:require [plumbing.map :as pl]))
 
 ;; A pair of functions which, together, efficiently turn a file into lines.
 ;; It's necessary to use this over `slurp` because the file in question is quite big.
-(defn reduce-file [filename f acc]
+(defn- reduce-file
+  [filename f acc]
   (with-open [rdr (java.io.BufferedReader.
-                    (java.io.InputStreamReader.
-                      (java.io.FileInputStream. filename)
-                      "UTF-8"))]
+                   (java.io.InputStreamReader.
+                    (java.io.FileInputStream. filename)
+                    "UTF-8"))]
     (reduce f acc (line-seq rdr))))
-(defn get-lines [filename]
+(defn get-lines
+  "Efficiently read in a file from a filename."
+  [filename]
   (reduce-file filename conj []))
 
-;; This function is like filter, but it tests *n*-length subsequences of the sequence.
-;; A trailing subseq of length < *n* is permitted to continue to exist.
-;; This function is very, very slow -- but wrapping its return value in `lazy-seq`
-;; ameliorates this to some extent.
-(defn filter-n-lazy [n pred xs]
+(defn filter-n-lazy
+  "This function is like filter, but it tests *n*-length subsequences of the sequence.
+  A trailing subseq of length < *n* is permitted to continue to exist.
+  This function is very, very slow -- but wrapping its return value in `lazy-seq`
+  ameliorates this to some extent."
+  [n pred xs]
   (lazy-seq
-    (cond
-      (empty? xs) xs
-      (< (count xs) n) xs
-      :else
-      (if (pred (take n xs))
-        (cons (first xs) (filter-n-lazy n pred (rest xs)))
-        (filter-n-lazy n pred (drop n xs))))))
+   (cond
+    (empty? xs) xs
+    (< (count xs) n) xs
+    :else
+    (if (pred (take n xs))
+      (cons (first xs) (filter-n-lazy n pred (rest xs)))
+      (filter-n-lazy n pred (drop n xs))))))
 
 ;; Predicates to identify lines that are either page numbers or footers.
-(defn footer? [line]
+(defn footer?
+  [line]
   (.startsWith line "Kaufman:  preliminary Mayan Etymological Dictionary"))
-(defn pagenumber? [line]
+(defn pagenumber?
+  [line]
   (re-seq #"^[0-9]+\s*$" line))
 
 ;; The five-place filter that detects pagenum-footer sequences.
-(defn not-pagenumber-footer-sequence [[l1 l2 l3 l4 l5]]
+(defn not-pagenumber-footer-sequence
+  [[l1 l2 l3 l4 l5]]
   (not (and	(empty? l1)
-             (pagenumber? l2)
-             (empty? l3)
-             (footer? l4)
-             (empty? l5))))
+            (pagenumber? l2)
+            (empty? l3)
+            (footer? l4)
+            (empty? l5))))
 
+(defn half-flatten
+  "De-sequentializes the first element in a sequence of sequences.
+  Also makes damn sure that it's a singleton (by dropping everything
+  except its first element)."
+  [xs]
+  (cons (first (first xs)) (rest xs)))
 
-;; The `pairs` function helps construct maps from partitioned sequences.
-;; It turns a sequence into a sequence of length-2 sequences.
-;; ... as it turns out, as @tsrmlis points out to me, `partition` can do this!
-(defn pairs [xs]
-  (lazy-seq
-    (if (empty? xs) xs
-      (cons [(first xs) (second xs)] (pairs (drop 2 xs))))))
+(defn partition-to-map
+  "Helps construct maps from partitioned sequences.
+  Turns a partitioned sequence into a map."
+  [xs]
+  (if (or (odd? (count xs))
+          (empty? xs))
+    {}
+    (->> xs
+         (partition 2)
+         (map half-flatten)
+         (map #(apply vector %))
+         (into {}))))
 
-;; A generic "splitting" function. Partitions a sequence by
-;; a predicate, then drops those parts that match the predicate.
-(defn split-seq [pred xs]
-  (filter #(not (pred (first %)))
-          (partition-by pred xs)))
+(defn map-keys
+  "Applies a function of one argument to all the keys
+  in a map, returning the map resulting from replacing all
+  the keys with the values of the function on those keys."
+  [f m]
+  (into {} (map (fn [[k v]]
+                  [(f k) v]) m)))
+
+(defn apply-leaves
+  "Applies a function to the leaves of a deeply nested map."
+  [f m]
+  (->> m
+       pl/flatten
+       (map (fn [[ks vs]] [ks (f vs)]))
+       pl/unflatten))
+
+(defn leaves
+  "Get the leaves of a nested map."
+  [m]
+  (map second (pl/flatten m)))
+
+(defn arbitrary-map
+  "Turns a sequence into a map by assigning a randomly generated
+  key to each item in the sequence."
+  [k xs]
+  (->> xs
+       (map #(vector (str k (gensym)) %))
+       (into {})))
+
+(defn split-seq
+  "A generic 'splitting' function. Partitions a sequence by
+  a predicate, then drops those parts that match the predicate."
+  [pred xs]
+  (->> xs
+       (partition-by pred)
+       (filter #(not (pred (first %))))))
 
 ;; Several specific variants of this.
 ;; `split-seq` was defined by abstracting away from the ad-hoc versions of
 ;; these, each of which used to be defined separately. Oy!
-(defn split-on-xx [vs]
+(defn split-on-xx
+  [vs]
   (split-seq #(.startsWith % "xxxxx") vs))
-(defn split-on-eq [vs]
+(defn split-on-eq
+  [vs]
   (split-seq #(.startsWith % "=====") vs))
-(defn split-on-blanks [vs]
+(defn split-on-blanks
+  [vs]
   (split-seq #(empty? (.trim %)) vs))
 
-;; A function for cleaning up the values of the top-level semantic block keys.
-(defn clean-p-key [s]
+(defn clean-p-key
+  "A function for cleaning up the values of the top-level semantic block keys."
+  [s]
   (.trim (first (re-seq #"[^\%]+" s))))
 
-;; Takes a line (the first line to come after
-;; the xx-delimiter) and returns the "key" it contains if it's there or
-;; a gensymmed value if it's not.
-(defn xx-line-semantics [x]
+(defn xx-line-semantics
+  "Takes a line (the first line to come after the xx-delimiter)
+  and returns the "key" it contains if it's there or a gensymmed
+  value if it's not."
+  [x]
   (let [pat (re-seq #"^\s{30,}\w+" x)]
     (if pat
       (.trim (first pat))
       (str (gensym "xx__")))))
 
-;; Applies `xx-line-semantics` to the first
-;; line in a sequence of strings. This is intended to apply to the partitioned
-;; sequences yielded up by `split-on-xx`.
-(defn xx-block-semantics [xs]
+(defn xx-block-semantics
+  "Applies `xx-line-semantics` to the first line in a sequence of strings.
+  This is intended to apply to the partitioned sequences yielded up by `split-on-xx`."
+  [xs]
   (xx-line-semantics (first xs)))
 
 
-;; This predicate identifies a string as a root header.
-;; Yes, it is especially crude.
-;; No, I can't see any way to do it any better.
-(defn root? [s]
-  (and
-    (not (empty? (re-seq #"^\S+" s)))
-    (not (.startsWith s "cf."))
-    (not (.startsWith s "? "))))
+(defn eliminable?
+  "Identifies a string as crud that interferes with the creation of root maps.
+  This is really just a dumping-ground for bad parts of the dictionary..."
+  [s]
+  (or
+   (seq (re-seq #"^\s{30,}\w+" s))
+   (.startsWith s "cf.")
+   (.startsWith s "NOTHING MORE FOUND")
+   (.startsWith s "? ")
+   (.startsWith s "[")
+   (.startsWith s "NOTE:")
+   (.startsWith s "NOT IN")
+   (.startsWith s "#tahb")
+   (.startsWith s "KAQ ajo7")
+   (.startsWith s "TZU ajo.b'e")
+   (.startsWith s "KCH ajaw.a.x")))
 
-;; This function takes a sequence of lines and partitions it by its
-;; putative root header. It tries to eliminate empty lines or other
-;; dreck that may precede root headers in the resulting partitioned
-;; sequence, allowing it to be more smoothly transformed into
-;; pairs and thus a map (ala Step 3 in [kaufman.actions](#kaufman.actions)).
-(defn partition-by-root [lines]
-  (let [partitioned (partition-by root? lines)
-        testitem (first (first partitioned))]
-    (if (or
-          (empty? (.trim testitem))
-          (.startsWith testitem "     "))
-      (rest partitioned)
-      partitioned)))
+(defn root?
+  "Identifies a string as a root header."
+  [s]
+  (not (or
+        (empty? (re-seq #"^\S+" s))
+        (eliminable? s))))
 
-;; The function which splits a line into its component parts is pretty
-;; simple, since these lines are mercifully regular.
-(defn divide-data-chunk [line]
+(defn fix-root-partition
+  "Cleans up the result of partitioning by root.
+  This includes eliminating crap coming before the root
+  and gluing on an ad-hoc root if there isn't one."
+  [xs]
+  (let [filtered (drop-while (comp empty? (partial filter root?)) xs)]
+    (if (seq? filtered)
+      filtered
+      (cons [(str "No root " (gensym))] xs))))
+
+(defn divide-data-chunk
+  "The function which splits a line into its component parts.
+  Pretty simple, as these are mercifully regular."
+  [line]
   (let [[prefix rest] (split-at 5 line)
         [language rest] (split-at 10 rest)
         [lexeme rest] (split-at 31 rest)
@@ -131,78 +198,3 @@
      :code t-code
      :gloss t-gloss
      :source t-source}))
-
-;; The following functions simplify the manipulation of deeply embedded
-;; maps. Thanks to @tsrmlis for giving me the impetus to fix the hideous nest
-;; of maps and anonymous functions I had been employing to do this!
-(defn map-vals [f coll]
-  (map
-    (fn [[k v]]
-      [k (f v)])
-    coll))
-(defn map-vals-2 [f coll]
-  (map 
-    (fn [[k1 v1]]
-      [k1 
-       (map 
-         (fn [[k2 v2]]
-           [k2 (f v2)])
-         v1)])
-    coll))
-
-;; I'm aware that most of these functions are needlessly repetitive and could
-;; be rewritten as iterations of `map-vals` ... but I'm too lazy to think through
-;; how this could be done, at the moment.
-
-;; ``map-vals-mms`` and the functions following it operate with a mixture of maps and simple sequences.
-;; The names of the functions are mnemonic: "mms" indicates that the nesting
-;; is map-map-sequence, "mmsm" map-map-sequence-map, etc.
-(defn map-vals-mms [f coll]
-  (map 
-    (fn [[k1 v1]]
-      [k1 
-       (map 
-         (fn [[k2 v2]]
-           [k2
-            (map
-              (fn [es]
-                (f es)) 
-              v2)]) 
-         v1)]) 
-    coll))
-(defn map-vals-mmsm [f coll]
-  (map 
-    (fn [[kp vp]]
-      [kp 
-       (map 
-         (fn [[kx vx]]
-           [kx 
-            (map 
-              (fn [es]
-                (map 
-                  (fn [[kr vr]]
-                    [kr (f vr)])
-                  es))
-              vx)])
-         vp)])
-    coll))
-(defn map-vals-mmsms [f coll]
-  (map 
-    (fn [[kp vp]]
-      [kp 
-       (map 
-         (fn [[kx vx]]
-           [kx 
-            (map 
-              (fn [es]
-                (map 
-                  (fn [[kr vr]]
-                    [kr
-                      (map
-                        (fn [bs]
-                          (f bs))
-                        vr)])
-                  es))
-              vx)])
-         vp)])
-    coll))
