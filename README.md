@@ -26,6 +26,6 @@ cause the script problems.
 
 ## License
 
-Copyright (C) 2012 Neil M. Ashton.
+Copyright (C) 2012-14 Neil M. Ashton.
 
 Distributed under the Eclipse Public License, the same as Clojure.
