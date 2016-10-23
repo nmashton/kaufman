@@ -68,6 +68,10 @@
   (filter (fn [x] (not (re-seq #"^\%+\s*$" x)))
           data))
 
+(def strip-percents-tr
+  (filter
+    #(not (re-seq #"^\%+\s*$" %))))
+
 (defn group-by-percent-delimiters
   "Partition the data by lines that start with %%, turning the result
   into a map, as described above.

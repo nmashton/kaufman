@@ -17,7 +17,7 @@
   [filename]
   (reduce-file filename conj []))
 
-(defn filter-n-lazy
+(defn filter-n-lazy-lazy
   "This function is like filter, but it tests *n*-length subsequences of the sequence.
   A trailing subseq of length < *n* is permitted to continue to exist.
   This function is very, very slow -- but wrapping its return value in `lazy-seq`
@@ -29,8 +29,8 @@
     (< (count xs) n) xs
     :else
     (if (pred (take n xs))
-      (cons (first xs) (filter-n-lazy n pred (rest xs)))
-      (filter-n-lazy n pred (drop n xs))))))
+      (cons (first xs) (filter-n-lazy-lazy n pred (rest xs)))
+      (filter-n-lazy-lazy n pred (drop n xs))))))
 
 ;; Predicates to identify lines that are either page numbers or footers.
 (defn footer?
@@ -126,7 +126,7 @@
 
 (defn xx-line-semantics
   "Takes a line (the first line to come after the xx-delimiter)
-  and returns the "key" it contains if it's there or a gensymmed
+  and returns the key it contains if it's there or a gensymmed
   value if it's not."
   [x]
   (let [pat (re-seq #"^\s{30,}\w+" x)]
