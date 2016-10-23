@@ -84,6 +84,14 @@
        partition-to-map
        (map-keys clean-p-key)))
 
+(def group-with-semantic-field-block-tr
+  (comp
+    (partition 2)
+    (map
+      #([fst snd])
+      {:semantic-field-block fst
+       :lines snd})))
+
 
 ;; # Step 4. Parse next level of structure: xx-delimiters.
 

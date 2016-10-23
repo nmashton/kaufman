@@ -17,7 +17,7 @@
   [filename]
   (reduce-file filename conj []))
 
-(defn filter-n-lazy-lazy
+(defn filter-n-lazy
   "This function is like filter, but it tests *n*-length subsequences of the sequence.
   A trailing subseq of length < *n* is permitted to continue to exist.
   This function is very, very slow -- but wrapping its return value in `lazy-seq`
@@ -29,8 +29,8 @@
     (< (count xs) n) xs
     :else
     (if (pred (take n xs))
-      (cons (first xs) (filter-n-lazy-lazy n pred (rest xs)))
-      (filter-n-lazy-lazy n pred (drop n xs))))))
+      (cons (first xs) (filter-n-lazy n pred (rest xs)))
+      (filter-n-lazy n pred (drop n xs))))))
 
 ;; Predicates to identify lines that are either page numbers or footers.
 (defn footer?
@@ -43,7 +43,7 @@
 ;; The five-place filter that detects pagenum-footer sequences.
 (defn not-pagenumber-footer-sequence
   [[l1 l2 l3 l4 l5]]
-  (not (and	(empty? l1)
+  (not (and  (empty? l1)
             (pagenumber? l2)
             (empty? l3)
             (footer? l4)
