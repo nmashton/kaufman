@@ -86,11 +86,13 @@
 
 (def group-with-semantic-field-block-tr
   (comp
-    (partition 2)
+    (partition-by #(.startsWith % "%% "))
+    (partition-all 2)
     (map
-      #([fst snd])
-      {:semantic-field-block fst
-       :lines snd})))
+      (fn [[[field] lines]]
+        (with-meta
+          lines
+          {:semantic-field-block (clean-p-key field)})))))
 
 
 ;; # Step 4. Parse next level of structure: xx-delimiters.
@@ -117,6 +119,10 @@
   [data]
   (apply-leaves split-on-xx data))
 
+(def split-on-xx-delimiters-tr
+  (mapcat
+    (fn [block]
+      (eduction (handle-xx (meta block)) block))))
 
 ;; The resulting partitioned sequence can be turned into a map, much
 ;; like in Step 3, since at least *some* of the xx-delimited chunks have
@@ -143,7 +149,10 @@
   [data]
   (apply-leaves flatten data))
 
-
+(def split-on-eq-delimiters-tr
+  (mapcat
+    (fn [block]
+      (eduction (handle-eq (meta block)) block))))
 
 ;; # Step 5. Parse next level of structure: ==-delimiters.
 
@@ -187,6 +196,18 @@
        xs))
    data))
 
+(def eliminate-garbage-tr
+  (map
+    (fn [lines]
+      (let [[fst & rst] lines]
+        (if (or
+              (.startsWith fst "     ")
+              (empty? (.trim fst)))
+            (if rst
+              (with-meta rst (meta lines))
+              rst)
+            (with-meta lines (meta lines)))))))
+
 (defn eliminate-more-garbage
   "Weed out totally empty parts of the structure.
   This prevents problems shortly down the road."
@@ -196,12 +217,26 @@
      (filter #(not (empty? (.trim %))) xs))
    data))
 
+(def eliminate-more-garbage-tr
+  (map
+    (fn [lines]
+      (with-meta
+        (filter #(not (empty? (.trim %))) lines)
+        (meta lines)))))
+
 (defn eliminate-even-more-garbage
   "Perform yet another round of cleanups."
   [data]
   (apply-leaves
    #(filter (complement eliminable?) %)
    data))
+
+(def eliminate-even-more-garbage-tr
+  (map
+    (fn [lines]
+      (with-meta
+        (filter (complement eliminable?) lines)
+        (meta lines)))))
 
 (defn group-by-root-lines
   "Create an inner map keyed by root headers."

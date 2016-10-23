@@ -106,15 +106,25 @@
        (partition-by pred)
        (filter #(not (pred (first %))))))
 
+(defn split-seq-tr
+  [pred]
+  (comp
+    (partition-by pred)
+    (filter #(not (pred (first %))))))
+
 ;; Several specific variants of this.
 ;; `split-seq` was defined by abstracting away from the ad-hoc versions of
 ;; these, each of which used to be defined separately. Oy!
 (defn split-on-xx
   [vs]
   (split-seq #(.startsWith % "xxxxx") vs))
+(def split-on-xx-tr
+  (split-seq-tr #(.startsWith % "xxxxx")))
 (defn split-on-eq
   [vs]
   (split-seq #(.startsWith % "=====") vs))
+(def split-on-eq-tr
+  (split-seq-tr #(.startsWith % "=====")))
 (defn split-on-blanks
   [vs]
   (split-seq #(empty? (.trim %)) vs))
@@ -132,7 +142,31 @@
   (let [pat (re-seq #"^\s{30,}\w+" x)]
     (if pat
       (.trim (first pat))
-      (str (gensym "xx__")))))
+      (gensym "xx__"))))
+
+(defn handle-xx
+  [higher-meta]
+  (comp
+    split-on-xx-tr
+    (map
+      (fn [lines]
+        (with-meta
+          lines
+          (into
+            higher-meta
+            {:x-block (xx-line-semantics (first lines))}))))))
+
+(defn handle-eq
+  [higher-meta]
+  (comp
+    split-on-eq-tr
+    (map
+      (fn [lines]
+        (with-meta
+          lines
+          (into
+            higher-meta
+            {:eq-block (gensym "eq__")}))))))
 
 (defn xx-block-semantics
   "Applies `xx-line-semantics` to the first line in a sequence of strings.
