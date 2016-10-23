@@ -86,7 +86,7 @@
 
 (def group-with-semantic-field-block-tr
   (comp
-    (partition-by #(.startsWith % "%% "))
+    (partition-by #(empty? (re-seq #"^\s*%% " %)))
     (partition-all 2)
     (map
       (fn [[[field] lines]]
@@ -246,6 +246,28 @@
        (apply-leaves fix-root-partition)
        (apply-leaves partition-to-map)))
 
+(def group-by-root-lines-tr
+  (comp
+    ; input: [[:a, :b, :c], [:d, :e, :f]]
+    ; output: [[[:a], [:b, :c]], [[:d], [:e, :f]]]
+    (map
+      (fn [lines]
+        (with-meta
+          (partition-by root? lines)
+          (meta lines))))
+    (map
+      (fn [groups]
+        (with-meta
+          (case (count groups)
+            1 (cons '() groups)
+            3 (rest groups)
+            groups)
+          (meta groups))))
+    (map
+      (fn [groups]
+        (with-meta
+          (partition-all 2 groups)
+          (meta groups))))))
 
 ;; # Step 7. Group the innermost sequence of lines into blank-delimited chunks.
 

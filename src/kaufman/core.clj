@@ -35,7 +35,8 @@
       split-on-eq-delimiters-tr
       eliminate-garbage-tr
       eliminate-more-garbage-tr
-      eliminate-even-more-garbage-tr)
+      eliminate-even-more-garbage-tr
+      group-by-root-lines-tr)
     (get-raw-data "./data/kaufman-footers-stripped.txt")))
 
 ;; The "relational" encoding of `processed`.

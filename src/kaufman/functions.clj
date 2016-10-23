@@ -188,9 +188,12 @@
    (.startsWith s "NOTE:")
    (.startsWith s "NOT IN")
    (.startsWith s "#tahb")
-   (.startsWith s "KAQ ajo7")
-   (.startsWith s "TZU ajo.b'e")
-   (.startsWith s "KCH ajaw.a.x")))
+   (= "     pCh       *b'ahk'ut                      s         // fright, fear                           [K&N 41] " s)
+   (.startsWith s "TZU ajo.b'e < **7ajaw.b'e")
+   (.startsWith s "KCH ajaw.a.x < **7ajaw.a")))
+  ;  (.startsWith s "KAQ ajo7")
+  ;  (.startsWith s "TZU ajo.b'e")
+  ;  (.startsWith s "KCH ajaw.a.x")))
 
 (defn root?
   "Identifies a string as a root header."
