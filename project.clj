@@ -1,4 +1,4 @@
-(defproject kaufman "0.0.1"
+(defproject kaufman-justeson "0.0.1"
   :description "Kaufman & Justeson 2003 processor"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cheshire "4.0.2"]

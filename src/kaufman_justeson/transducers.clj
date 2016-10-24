@@ -1,7 +1,7 @@
 ;; Transducers for effecting the transformation from raw text to a
 ;; sequence of tagged lexemes.
-(ns kaufman.transducers
-  (:use [kaufman.functions]))
+(ns kaufman-justeson.transducers
+  (:use [kaufman-justeson.functions]))
 
 ;; # Step 3. Parse the top level of hierarchical structure.
 

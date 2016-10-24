@@ -1,8 +1,8 @@
 ;; Threads the data file through the transformations
 ;; defined in [kaufman.transducers](#kaufman.transducers).
 ;; Produces a list of lexemes tagged with metadata.
-(ns kaufman.core
-  (:use [kaufman.transducers]))
+(ns kaufman-justeson.core
+  (:use [kaufman-justeson.transducers]))
 
 (def processed-tr
   (with-open [rdr (clojure.java.io/reader "./data/kaufman-footers-stripped.txt")]

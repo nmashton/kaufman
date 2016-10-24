@@ -1,6 +1,6 @@
 ;; Auxiliary functions, assisting with the text-wrangling transformations
 ;; defined elsewhere.
-(ns kaufman.functions
+(ns kaufman-justeson.functions
   (:use [clojure.string :only [split join]])
   (:require [plumbing.map :as pl]))
 
