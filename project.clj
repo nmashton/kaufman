@@ -1,6 +1,6 @@
-(defproject kaufman "0.0.1"
+(defproject kaufman-justeson "0.0.1"
   :description "Kaufman & Justeson 2003 processor"
-  :dependencies [[org.clojure/clojure "1.3.0"]
-  				 [cheshire "4.0.2"]]
-  :dev-dependencies [[lein-marginalia "0.7.1"]]
-  :jvm-opts ["-Xms256m" "-Xmx1024m"])
+  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :dev-dependencies [[lein-marginalia "0.9.0"]]
+  :jvm-opts ["-Xms256m" "-Xmx1024m"]
+  :plugins [[lein-marginalia "0.9.0"]])
