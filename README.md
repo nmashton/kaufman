@@ -15,7 +15,7 @@ cause the script problems.
 
 2. Load the kaufman-justeson.core namespace in a REPL.
 
-3. Do something cool with the value of `processed-tr`.
+3. Do something cool with the value of `processed`.
 
 ## License
 

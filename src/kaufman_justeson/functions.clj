@@ -4,7 +4,7 @@
   (:use [clojure.string :only [split join]])
   (:require [plumbing.map :as pl]))
 
-(defn split-seq-tr
+(defn split-seq
   "A function for producing 'splitting' transducers. These partition
   a sequence by a predicate, then drop those parts that match the predicate."
   [pred]
@@ -13,12 +13,12 @@
     (filter #(not (pred (first %))))))
 
 ;; Several specific variants of this.
-(def split-on-xx-tr
-  (split-seq-tr #(.startsWith % "xxxxx")))
-(def split-on-eq-tr
-  (split-seq-tr #(.startsWith % "=====")))
-(def split-on-blanks-tr
-  (split-seq-tr #(empty (.trim %))))
+(def split-on-xx
+  (split-seq #(.startsWith % "xxxxx")))
+(def split-on-eq
+  (split-seq #(.startsWith % "=====")))
+(def split-on-blanks
+  (split-seq #(empty (.trim %))))
 
 (defn clean-p-key
   "A function for cleaning up the values of the top-level semantic block keys."
@@ -40,7 +40,7 @@
   xx-lines."
   [higher-meta]
   (comp
-    split-on-xx-tr
+    split-on-xx
     (map
       (fn [lines]
         (with-meta
@@ -54,7 +54,7 @@
   by ==-lines."
   [higher-meta]
   (comp
-    split-on-eq-tr
+    split-on-eq
     (map
       (fn [lines]
         (with-meta
@@ -68,7 +68,7 @@
   by blanks."
   [higher-meta]
   (comp
-    split-on-blanks-tr
+    split-on-blanks
     (map
       (fn [lines]
         (with-meta

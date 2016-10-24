@@ -2865,134 +2865,45 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>kaufman -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">kaufman</h1><h2 class="project-version">0.0.1</h2><br /><p>Kaufman &amp; Justeson 2003 processor</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.8.0</td></tr><tr><td class="dep-name">cheshire</td><td class="dotted"><hr /></td><td class="dep-version">4.0.2</td></tr><tr><td class="dep-name">prismatic/plumbing</td><td class="dotted"><hr /></td><td class="dep-version">0.5.3</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.9.0</td></tr><tr><td class="dep-name">proto-repl</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#kaufman.core">kaufman.core</a></li><li><a href="#kaufman.functions">kaufman.functions</a></li><li><a href="#kaufman.transducers">kaufman.transducers</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman.core" name="kaufman.core"><h1 class="project-name">kaufman.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Threads the data file through the transformations
+</script><title>kaufman-justeson -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">kaufman-justeson</h1><h2 class="project-version">0.0.1</h2><br /><p>Kaufman &amp; Justeson 2003 processor</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.8.0</td></tr><tr><td class="dep-name">cheshire</td><td class="dotted"><hr /></td><td class="dep-version">4.0.2</td></tr><tr><td class="dep-name">prismatic/plumbing</td><td class="dotted"><hr /></td><td class="dep-version">0.5.3</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.9.0</td></tr><tr><td class="dep-name">proto-repl</td><td class="dotted"><hr /></td><td class="dep-version">0.3.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#kaufman-justeson.core">kaufman-justeson.core</a></li><li><a href="#kaufman-justeson.functions">kaufman-justeson.functions</a></li><li><a href="#kaufman-justeson.transducers">kaufman-justeson.transducers</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman-justeson.core" name="kaufman-justeson.core"><h1 class="project-name">kaufman-justeson.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Threads the data file through the transformations
 defined in <a href="#kaufman.transducers">kaufman.transducers</a>.
 Produces a list of lexemes tagged with metadata.</p>
-</td><td class="codes"><pre class="brush: clojure">(ns kaufman.core
-  (:use [kaufman.transducers]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def processed-tr
-  (eduction
-    (comp
-      strip-percents-tr
-      group-with-semantic-field-block-tr
-      split-on-xx-delimiters-tr
-      split-on-eq-delimiters-tr
-      eliminate-garbage-tr
-      eliminate-more-garbage-tr
-      eliminate-even-more-garbage-tr
-      group-by-root-lines-tr
-      split-on-blank-lines-tr
-      turn-lines-into-maps-tr
-      remove-blank-lexemes-tr)
-    (get-raw-data &quot;./data/kaufman-footers-stripped.txt&quot;)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman.functions" name="kaufman.functions"><h1 class="project-name">kaufman.functions</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Auxiliary functions, assisting with the text-wrangling transformations defined elsewhere.</p>
-</td><td class="codes"><pre class="brush: clojure">(ns kaufman.functions
+</td><td class="codes"><pre class="brush: clojure">(ns kaufman-justeson.core
+  (:use [kaufman-justeson.transducers]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def processed
+  (with-open [rdr (clojure.java.io/reader &quot;./data/kaufman-footers-stripped.txt&quot;)]
+    (doall
+      (eduction
+        (comp
+          strip-percents
+          group-with-semantic-field-block
+          split-on-xx-delimiters
+          split-on-eq-delimiters
+          eliminate-garbage
+          eliminate-more-garbage
+          eliminate-even-more-garbage
+          group-by-root-lines
+          split-on-blank-lines
+          turn-lines-into-maps
+          remove-blank-lexemes)
+        (line-seq rdr)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman-justeson.functions" name="kaufman-justeson.functions"><h1 class="project-name">kaufman-justeson.functions</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Auxiliary functions, assisting with the text-wrangling transformations
+defined elsewhere.</p>
+</td><td class="codes"><pre class="brush: clojure">(ns kaufman-justeson.functions
   (:use [clojure.string :only [split join]])
-  (:require [plumbing.map :as pl]))</pre></td></tr><tr><td class="docs"><p>A pair of functions which, together, efficiently turn a file into lines.
-It's necessary to use this over <code>slurp</code> because the file in question is quite big.</p>
-
-<p>Efficiently read in a file from a filename.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn- reduce-file
-  [filename f acc]
-  (with-open [rdr (java.io.BufferedReader.
-                   (java.io.InputStreamReader.
-                    (java.io.FileInputStream. filename)
-                    &quot;UTF-8&quot;))]
-    (reduce f acc (line-seq rdr))))
-(defn get-lines
-  [filename]
-  (reduce-file filename conj []))</pre></td></tr><tr><td class="docs"><p>This function is like filter, but it tests <em>n</em>-length subsequences of the sequence.
-  A trailing subseq of length &lt; <em>n</em> is permitted to continue to exist.
-  This function is very, very slow -- but wrapping its return value in <code>lazy-seq</code>
-  ameliorates this to some extent.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn filter-n-lazy
-  [n pred xs]
-  (lazy-seq
-   (cond
-    (empty? xs) xs
-    (&lt; (count xs) n) xs
-    :else
-    (if (pred (take n xs))
-      (cons (first xs) (filter-n-lazy n pred (rest xs)))
-      (filter-n-lazy n pred (drop n xs))))))</pre></td></tr><tr><td class="docs"><p>Predicates to identify lines that are either page numbers or footers.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn footer?
-  [line]
-  (.startsWith line &quot;Kaufman:  preliminary Mayan Etymological Dictionary&quot;))
-(defn pagenumber?
-  [line]
-  (re-seq #&quot;^[0-9]+\s*$&quot; line))</pre></td></tr><tr><td class="docs"><p>The five-place filter that detects pagenum-footer sequences.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn not-pagenumber-footer-sequence
-  [[l1 l2 l3 l4 l5]]
-  (not (and  (empty? l1)
-            (pagenumber? l2)
-            (empty? l3)
-            (footer? l4)
-            (empty? l5))))</pre></td></tr><tr><td class="docs"><p>De-sequentializes the first element in a sequence of sequences.
-  Also makes damn sure that it's a singleton (by dropping everything
-  except its first element).</p>
-</td><td class="codes"><pre class="brush: clojure">(defn half-flatten
-  [xs]
-  (cons (first (first xs)) (rest xs)))</pre></td></tr><tr><td class="docs"><p>Helps construct maps from partitioned sequences.
-  Turns a partitioned sequence into a map.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn partition-to-map
-  [xs]
-  (if (or (odd? (count xs))
-          (empty? xs))
-    {}
-    (-&gt;&gt; xs
-         (partition 2)
-         (map half-flatten)
-         (map #(apply vector %))
-         (into {}))))</pre></td></tr><tr><td class="docs"><p>Applies a function of one argument to all the keys
-  in a map, returning the map resulting from replacing all
-  the keys with the values of the function on those keys.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn map-keys
-  [f m]
-  (into {} (map (fn [[k v]]
-                  [(f k) v]) m)))</pre></td></tr><tr><td class="docs"><p>Applies a function to the leaves of a deeply nested map.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn apply-leaves
-  [f m]
-  (-&gt;&gt; m
-       pl/flatten
-       (map (fn [[ks vs]] [ks (f vs)]))
-       pl/unflatten))</pre></td></tr><tr><td class="docs"><p>Get the leaves of a nested map.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn leaves
-  [m]
-  (map second (pl/flatten m)))</pre></td></tr><tr><td class="docs"><p>Turns a sequence into a map by assigning a randomly generated
-  key to each item in the sequence.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn arbitrary-map
-  [k xs]
-  (-&gt;&gt; xs
-       (map #(vector (str k (gensym)) %))
-       (into {})))</pre></td></tr><tr><td class="docs"><p>A generic 'splitting' function. Partitions a sequence by
-  a predicate, then drops those parts that match the predicate.</p>
+  (:require [plumbing.map :as pl]))</pre></td></tr><tr><td class="docs"><p>A function for producing 'splitting' transducers. These partition
+  a sequence by a predicate, then drop those parts that match the predicate.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn split-seq
-  [pred xs]
-  (-&gt;&gt; xs
-       (partition-by pred)
-       (filter #(not (pred (first %))))))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn split-seq-tr
   [pred]
   (comp
     (partition-by pred)
-    (filter #(not (pred (first %))))))</pre></td></tr><tr><td class="docs"><p>Several specific variants of this.
-<code>split-seq</code> was defined by abstracting away from the ad-hoc versions of
-these, each of which used to be defined separately. Oy!</p>
-</td><td class="codes"><pre class="brush: clojure">(defn split-on-xx
-  [vs]
-  (split-seq #(.startsWith % &quot;xxxxx&quot;) vs))
-(def split-on-xx-tr
-  (split-seq-tr #(.startsWith % &quot;xxxxx&quot;)))
-(defn split-on-eq
-  [vs]
-  (split-seq #(.startsWith % &quot;=====&quot;) vs))
-(def split-on-eq-tr
-  (split-seq-tr #(.startsWith % &quot;=====&quot;)))
-(defn split-on-blanks
-  [vs]
-  (split-seq #(empty? (.trim %)) vs))
-(def split-on-blanks-tr
-  (split-seq-tr #(empty (.trim %))))</pre></td></tr><tr><td class="docs"><p>A function for cleaning up the values of the top-level semantic block keys.</p>
+    (filter #(not (pred (first %))))))</pre></td></tr><tr><td class="docs"><p>Several specific variants of this.</p>
+</td><td class="codes"><pre class="brush: clojure">(def split-on-xx
+  (split-seq #(.startsWith % &quot;xxxxx&quot;)))
+(def split-on-eq
+  (split-seq #(.startsWith % &quot;=====&quot;)))
+(def split-on-blanks
+  (split-seq #(empty (.trim %))))</pre></td></tr><tr><td class="docs"><p>A function for cleaning up the values of the top-level semantic block keys.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn clean-p-key
   [s]
   (.trim (first (re-seq #&quot;[^\%]+&quot; s))))</pre></td></tr><tr><td class="docs"><p>Takes a line (the first line to come after the xx-delimiter)
@@ -3003,44 +2914,43 @@ these, each of which used to be defined separately. Oy!</p>
   (let [pat (re-seq #&quot;^\s{30,}\w+&quot; x)]
     (if pat
       (.trim (first pat))
-      (gensym &quot;xx__&quot;))))</pre></td></tr><tr><td class="docs">
+      (gensym &quot;xx__&quot;))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited by
+  xx-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-xx
   [higher-meta]
   (comp
-    split-on-xx-tr
+    split-on-xx
     (map
       (fn [lines]
         (with-meta
           lines
           (into
             higher-meta
-            {:x-block (xx-line-semantics (first lines))}))))))</pre></td></tr><tr><td class="docs">
+            {:x-block (xx-line-semantics (first lines))}))))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited
+  by ==-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-eq
   [higher-meta]
   (comp
-    split-on-eq-tr
+    split-on-eq
     (map
       (fn [lines]
         (with-meta
           lines
           (into
             higher-meta
-            {:eq-block (gensym &quot;eq__&quot;)}))))))</pre></td></tr><tr><td class="docs">
+            {:eq-block (gensym &quot;eq__&quot;)}))))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited
+  by blanks.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-blanks
   [higher-meta]
   (comp
-    split-on-blanks-tr
+    split-on-blanks
     (map
       (fn [lines]
         (with-meta
           lines
           (into
             higher-meta
-            {:space-block (gensym &quot;space__&quot;)}))))))</pre></td></tr><tr><td class="docs"><p>Applies <code>xx-line-semantics</code> to the first line in a sequence of strings.
-  This is intended to apply to the partitioned sequences yielded up by <code>split-on-xx</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn xx-block-semantics
-  [xs]
-  (xx-line-semantics (first xs)))</pre></td></tr><tr><td class="docs"><p>Identifies a string as crud that interferes with the creation of root maps.
+            {:space-block (gensym &quot;space__&quot;)}))))))</pre></td></tr><tr><td class="docs"><p>Identifies a string as crud that interferes with the creation of root maps.
   This is really just a dumping-ground for bad parts of the dictionary...</p>
 </td><td class="codes"><pre class="brush: clojure">(defn eliminable?
   [s]
@@ -3061,15 +2971,7 @@ these, each of which used to be defined separately. Oy!</p>
   [s]
   (not (or
         (empty? (re-seq #&quot;^\S+&quot; s))
-        (eliminable? s))))</pre></td></tr><tr><td class="docs"><p>Cleans up the result of partitioning by root.
-  This includes eliminating crap coming before the root
-  and gluing on an ad-hoc root if there isn't one.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn fix-root-partition
-  [xs]
-  (let [filtered (drop-while (comp empty? (partial filter root?)) xs)]
-    (if (seq? filtered)
-      filtered
-      (cons [(str &quot;No root &quot; (gensym))] xs))))</pre></td></tr><tr><td class="docs"><p>The function which splits a line into its component parts.
+        (eliminable? s))))</pre></td></tr><tr><td class="docs"><p>The function which splits a line into its component parts.
   Pretty simple, as these are mercifully regular.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn divide-data-chunk
   [line]
@@ -3096,27 +2998,10 @@ these, each of which used to be defined separately. Oy!</p>
   [meta]
   #(with-meta
     (divide-data-chunk %)
-    meta))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman.transducers" name="kaufman.transducers"><h1 class="project-name">kaufman.transducers</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Transducers for effecting the transformation from raw text to a
+    meta))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman-justeson.transducers" name="kaufman-justeson.transducers"><h1 class="project-name">kaufman-justeson.transducers</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Transducers for effecting the transformation from raw text to a
 sequence of tagged lexemes.</p>
-</td><td class="codes"><pre class="brush: clojure">(ns kaufman.transducers
-  (:use [kaufman.functions]))</pre></td></tr><tr><td class="docs"><p>Grab the data, using the efficient reader function <code>get-lines</code>
-  defined in <a href="#kaufman.functions">kaufman.functions</a>.</p>
-
-<h1>Step 1. Get the file.</h1>
-</td><td class="codes"><pre class="brush: clojure">(defn get-raw-data
-  [name]
-  (get-lines name))</pre></td></tr><tr><td class="docs"><h1>Step 2. Strip page numbers and footers from the data.</h1>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Deleting page numbers and footers means not just deleting the individual lines
-that contain page numbers and footers but deleting the five-line sequences
-which contain those individual lines, as well as flanking and separating blanks.
-Deleting the entire subsequence rather than its component parts
-is necessary because many semantically meaningful
-chunks of the text are delimited by blank spaces. Indeed, the five-line
-pagenum-footer sequences sometimes interrupt those chunks.</p>
-</td><td class="codes"></td></tr><tr><td class="docs"><p>Strip pagenum-footer sequences from the data.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn strip-pagenums-footers
-  [data]
-  (filter-n-lazy 5 not-pagenumber-footer-sequence data))</pre></td></tr><tr><td class="docs"><h1>Step 3. Parse the top level of hierarchical structure.</h1>
+</td><td class="codes"><pre class="brush: clojure">(ns kaufman-justeson.transducers
+  (:use [kaufman-justeson.functions]))</pre></td></tr><tr><td class="docs"><h1>Step 3. Parse the top level of hierarchical structure.</h1>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>The remainder of the transformations applied to the data consist of
 partitioning the sequence of lines on certain "meaningful" line patterns,
 using the split to generate a new piece of metadata, and flattening
@@ -3141,13 +3026,13 @@ lines and use their contents as keys in the resulting map.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Strip lines that consist of nothing but %s.
   Such lines, unlike lines that just start with %%,
   are not meaningful and can be completely ignored.</p>
-</td><td class="codes"><pre class="brush: clojure">(def strip-percents-tr
+</td><td class="codes"><pre class="brush: clojure">(def strip-percents
   (filter
     #(not (re-seq #&quot;^\%+\s*$&quot; %))))</pre></td></tr><tr><td class="docs"><p>Partition the data by lines that start with %%.</p>
 
 <p>  Also apply a cleaning function <code>clean-p-key</code>
   to strip off the meaningless crud that encloses the %%-keys.</p>
-</td><td class="codes"><pre class="brush: clojure">(def group-with-semantic-field-block-tr
+</td><td class="codes"><pre class="brush: clojure">(def group-with-semantic-field-block
   (comp
     (partition-by #(empty? (re-seq #&quot;^\s*%% &quot; %)))
     (partition-all 2)
@@ -3166,7 +3051,7 @@ it does not always exist!</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>In any case, because the xx-delimiters themselves are not meaningful,
 we can partition on them and then filter them out.</p>
 </td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def split-on-xx-delimiters-tr
+</td><td class="codes"><pre class="brush: clojure">(def split-on-xx-delimiters
   (mapcat
     (fn [block]
       (eduction (handle-xx (meta block)) block))))</pre></td></tr><tr><td class="docs"><h1>Step 5. Parse next level of structure: ==-delimiters.</h1>
@@ -3175,7 +3060,7 @@ of equals-signs. These blocks denote sets of forms that share a root. But this
 root is not in fact given in the text. So we just create an arbitrary
 index by means of generated by <code>gensym</code>.</p>
 </td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def split-on-eq-delimiters-tr
+</td><td class="codes"><pre class="brush: clojure">(def split-on-eq-delimiters
   (mapcat
     (fn [block]
       (eduction (handle-eq (meta block)) block))))</pre></td></tr><tr><td class="docs"><h1>Step 6. Parse next level of structure: root headers.</h1>
@@ -3193,7 +3078,7 @@ First, however, it is necessary to weed out blank lines and remnants
 of xx-headers from the tops of blocks of content, as these will
 foil our attempts to detect root headers if left unattended.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Weed out initial blanks and remnants of xx-headers.</p>
-</td><td class="codes"><pre class="brush: clojure">(def eliminate-garbage-tr
+</td><td class="codes"><pre class="brush: clojure">(def eliminate-garbage
   (map
     (fn [lines]
       (let [[fst &amp; rst] lines]
@@ -3205,20 +3090,20 @@ foil our attempts to detect root headers if left unattended.</p>
               rst)
             (with-meta lines (meta lines)))))))</pre></td></tr><tr><td class="docs"><p>Weed out totally empty parts of the structure.
   This prevents problems shortly down the road.</p>
-</td><td class="codes"><pre class="brush: clojure">(def eliminate-more-garbage-tr
+</td><td class="codes"><pre class="brush: clojure">(def eliminate-more-garbage
   (map
     (fn [lines]
       (with-meta
         (filter #(not (empty? (.trim %))) lines)
         (meta lines)))))</pre></td></tr><tr><td class="docs"><p>Perform yet another round of cleanups, using the trash-detection
   function <code>eliminable</code>.</p>
-</td><td class="codes"><pre class="brush: clojure">(def eliminate-even-more-garbage-tr
+</td><td class="codes"><pre class="brush: clojure">(def eliminate-even-more-garbage
   (map
     (fn [lines]
       (with-meta
         (filter (complement eliminable?) lines)
         (meta lines)))))</pre></td></tr><tr><td class="docs"><p>Group lines by root headers.</p>
-</td><td class="codes"><pre class="brush: clojure">(def group-by-root-lines-tr
+</td><td class="codes"><pre class="brush: clojure">(def group-by-root-lines
   (comp
     ; input: [[:a, :b, :c], [:d, :e, :f]]
     ; output: [[[:a], [:b, :c]], [[:d], [:e, :f]]]
@@ -3254,19 +3139,19 @@ foil our attempts to detect root headers if left unattended.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>This next parsing step is mercifully simple. As before, we split
 on the delimiter, here blank lines.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Split the innermost sequence of lines on blanks.</p>
-</td><td class="codes"><pre class="brush: clojure">(def split-on-blank-lines-tr
+</td><td class="codes"><pre class="brush: clojure">(def split-on-blank-lines
   (mapcat
     (fn [block]
       (eduction (handle-blanks (meta block)) block))))</pre></td></tr><tr><td class="docs"><h1>Step 8. Turn the remaining strings into "entry" maps.</h1>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>The final step in parsing is to turn the lines, which are now divided up
 in a maximally informative way, into maps representing their contents.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Turn remaining strings into lexical entry maps.</p>
-</td><td class="codes"><pre class="brush: clojure">(def turn-lines-into-maps-tr
+</td><td class="codes"><pre class="brush: clojure">(def turn-lines-into-maps
   (mapcat
     (fn [lines]
       (map (divide-data-chunk-with-meta (meta lines)) lines))))</pre></td></tr><tr><td class="docs"><p>Filters out the blanks.</p>
-</td><td class="codes"><pre class="brush: clojure">(def remove-blank-lexemes-tr
-  (filter :lexeme))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_kaufman.core">kaufman.core</li><li class="floating-toc-li" id="floating-toc_kaufman.functions">kaufman.functions</li><li class="floating-toc-li" id="floating-toc_kaufman.transducers">kaufman.transducers</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+</td><td class="codes"><pre class="brush: clojure">(def remove-blank-lexemes
+  (filter :lexeme))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/gdeer81/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_kaufman-justeson.core">kaufman-justeson.core</li><li class="floating-toc-li" id="floating-toc_kaufman-justeson.functions">kaufman-justeson.functions</li><li class="floating-toc-li" id="floating-toc_kaufman-justeson.transducers">kaufman-justeson.transducers</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
 SyntaxHighlighter.all();
 
 // hackity hack

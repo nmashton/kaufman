@@ -4,20 +4,20 @@
 (ns kaufman-justeson.core
   (:use [kaufman-justeson.transducers]))
 
-(def processed-tr
+(def processed
   (with-open [rdr (clojure.java.io/reader "./data/kaufman-footers-stripped.txt")]
     (doall
       (eduction
         (comp
-          strip-percents-tr
-          group-with-semantic-field-block-tr
-          split-on-xx-delimiters-tr
-          split-on-eq-delimiters-tr
-          eliminate-garbage-tr
-          eliminate-more-garbage-tr
-          eliminate-even-more-garbage-tr
-          group-by-root-lines-tr
-          split-on-blank-lines-tr
-          turn-lines-into-maps-tr
-          remove-blank-lexemes-tr)
+          strip-percents
+          group-with-semantic-field-block
+          split-on-xx-delimiters
+          split-on-eq-delimiters
+          eliminate-garbage
+          eliminate-more-garbage
+          eliminate-even-more-garbage
+          group-by-root-lines
+          split-on-blank-lines
+          turn-lines-into-maps
+          remove-blank-lexemes)
         (line-seq rdr)))))
