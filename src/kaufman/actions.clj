@@ -255,6 +255,7 @@
         (with-meta
           (partition-by root? lines)
           (meta lines))))
+    ; fixing the defective groups
     (map
       (fn [groups]
         (with-meta
@@ -263,11 +264,21 @@
             3 (rest groups)
             groups)
           (meta groups))))
-    (map
+    ; creating pairs
+    (mapcat
       (fn [groups]
+        (map
+          #(with-meta % (meta groups))
+          (partition-all 2 groups))))
+    (map
+      (fn [[root lines :as block]]
         (with-meta
-          (partition-all 2 groups)
-          (meta groups))))))
+          lines
+          (into
+            (meta block)
+            {:root (if (empty? root)
+                      (gensym "root__")
+                      (first root))}))))))
 
 ;; # Step 7. Group the innermost sequence of lines into blank-delimited chunks.
 
