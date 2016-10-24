@@ -292,6 +292,11 @@
        (apply-leaves split-on-blanks)
        (apply-leaves (partial arbitrary-map "block-"))))
 
+(def split-on-blank-lines-tr
+ (mapcat
+   (fn [block]
+     (eduction (handle-blanks (meta block)) block))))
+
 
 ;; # Step 8. Turn the remaining strings into "entry" maps.
 
@@ -303,10 +308,18 @@
   [data]
   (apply-leaves (partial map divide-data-chunk) data))
 
+(def turn-lines-into-maps-tr
+  (mapcat
+    (fn [lines]
+      (map (divide-data-chunk-with-meta (meta lines)) lines))))
+
 (defn remove-blank-lexemes
   "Filters out the blanks."
   [data]
   (apply-leaves (partial filter #(get % :lexeme)) data))
+
+(def remove-blank-lexemes-tr
+  (filter :lexeme))
 
 
 ;; # Step 8.5. Create a "relational" representation.

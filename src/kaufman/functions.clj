@@ -128,6 +128,8 @@
 (defn split-on-blanks
   [vs]
   (split-seq #(empty? (.trim %)) vs))
+(def split-on-blanks-tr
+  (split-seq-tr #(empty (.trim %))))
 
 (defn clean-p-key
   "A function for cleaning up the values of the top-level semantic block keys."
@@ -167,6 +169,19 @@
           (into
             higher-meta
             {:eq-block (gensym "eq__")}))))))
+
+
+(defn handle-blanks
+  [higher-meta]
+  (comp
+    split-on-blanks-tr
+    (map
+      (fn [lines]
+        (with-meta
+          lines
+          (into
+            higher-meta
+            {:space-block (gensym "space__")}))))))
 
 (defn xx-block-semantics
   "Applies `xx-line-semantics` to the first line in a sequence of strings.
@@ -235,3 +250,9 @@
      :code t-code
      :gloss t-gloss
      :source t-source}))
+
+(defn divide-data-chunk-with-meta
+  [meta]
+  #(with-meta
+    (divide-data-chunk %)
+    meta))
