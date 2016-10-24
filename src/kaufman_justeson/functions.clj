@@ -1,8 +1,7 @@
 ;; Auxiliary functions, assisting with the text-wrangling transformations
 ;; defined elsewhere.
 (ns kaufman-justeson.functions
-  (:use [clojure.string :only [split join]])
-  (:require [plumbing.map :as pl]))
+  (:use [clojure.string :only [split join]]))
 
 (defn split-seq
   "A function for producing 'splitting' transducers. These partition
