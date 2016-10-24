@@ -3,30 +3,6 @@
 (ns kaufman.transducers
   (:use [kaufman.functions]))
 
-;; # Step 1. Get the file.
-(defn get-raw-data
-  "Grab the data, using the efficient reader function `get-lines`
-  defined in [kaufman.functions](#kaufman.functions)."
-  [name]
-  (get-lines name))
-
-
-;; # Step 2. Strip page numbers and footers from the data.
-
-;; Deleting page numbers and footers means not just deleting the individual lines
-;; that contain page numbers and footers but deleting the five-line sequences
-;; which contain those individual lines, as well as flanking and separating blanks.
-;; Deleting the entire subsequence rather than its component parts
-;; is necessary because many semantically meaningful
-;; chunks of the text are delimited by blank spaces. Indeed, the five-line
-;; pagenum-footer sequences sometimes interrupt those chunks.
-
-(defn strip-pagenums-footers
-  "Strip pagenum-footer sequences from the data."
-  [data]
-  (filter-n-lazy 5 not-pagenumber-footer-sequence data))
-
-
 ;; # Step 3. Parse the top level of hierarchical structure.
 
 ;; The remainder of the transformations applied to the data consist of
