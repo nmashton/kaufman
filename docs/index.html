@@ -2890,8 +2890,7 @@ Produces a list of lexemes tagged with metadata.</p>
         (line-seq rdr)))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#kaufman-justeson.functions" name="kaufman-justeson.functions"><h1 class="project-name">kaufman-justeson.functions</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Auxiliary functions, assisting with the text-wrangling transformations
 defined elsewhere.</p>
 </td><td class="codes"><pre class="brush: clojure">(ns kaufman-justeson.functions
-  (:use [clojure.string :only [split join]])
-  (:require [plumbing.map :as pl]))</pre></td></tr><tr><td class="docs"><p>A function for producing 'splitting' transducers. These partition
+  (:use [clojure.string :only [split join]]))</pre></td></tr><tr><td class="docs"><p>A function for producing 'splitting' transducers. These partition
   a sequence by a predicate, then drop those parts that match the predicate.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn split-seq
   [pred]
