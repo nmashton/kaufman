@@ -1,10 +1,9 @@
-;; Threads the data file through the transformations defined in [kaufman.actions](#kaufman.actions).
-;; Produces both a map mirroring the hierarchical structure of the file, `processed`,
-;; and a flat list of maps suitable for importing into a relational database, `relational`.
+;; Threads the data file through the transformations
+;; defined in [kaufman.transducers](#kaufman.transducers).
+;; Produces a list of lexemes tagged with metadata.
 (ns kaufman.core
-  (:use [kaufman.actions]))
+  (:use [kaufman.transducers]))
 
-;; The core sequence of transformations.
 (def processed-tr
   (eduction
     (comp
