@@ -3,7 +3,7 @@
 (ns kaufman-justeson.transducers
   (:use [kaufman-justeson.functions]))
 
-;; # Step 3. Parse the top level of hierarchical structure.
+;; # Step 1. Parse the top level of hierarchical structure.
 
 ;; The remainder of the transformations applied to the data consist of
 ;; partitioning the sequence of lines on certain "meaningful" line patterns,
@@ -49,7 +49,7 @@
           {:semantic-field-block (clean-p-key field)})))))
 
 
-;; # Step 4. Parse next level of structure: xx-delimiters.
+;; # Step 2. Parse next level of structure: xx-delimiters.
 
 ;; Beneath the level of %%-delimiters, there is more structure to parse.
 ;; The next structural delimiter to split on is the line consisting of
@@ -68,7 +68,7 @@
     (fn [block]
       (eduction (handle-xx (meta block)) block))))
 
-;; # Step 5. Parse next level of structure: ==-delimiters.
+;; # Step 3. Parse next level of structure: ==-delimiters.
 
 ;; We now need to partition the blocks by the lines that consist
 ;; of equals-signs. These blocks denote sets of forms that share a root. But this
@@ -80,7 +80,7 @@
     (fn [block]
       (eduction (handle-eq (meta block)) block))))
 
-;; # Step 6. Parse next level of structure: root headers.
+;; # Step 4. Parse next level of structure: root headers.
 
 ;; At the next level, blocks of content are delimited by lines indicating
 ;; the reconstructed roots that items in the block share—or by other, similar-looking identifiers.
@@ -163,7 +163,7 @@
                       (gensym "root__")
                       (first root))}))))))
 
-;; # Step 7. Group the innermost sequence of lines into blank-delimited chunks.
+;; # Step 5. Group the innermost sequence of lines into blank-delimited chunks.
 
 ;; This next parsing step is mercifully simple. As before, we split
 ;; on the delimiter, here blank lines.
@@ -175,7 +175,7 @@
       (eduction (handle-blanks (meta block)) block))))
 
 
-;; # Step 8. Turn the remaining strings into "entry" maps.
+;; # Step 6. Turn the remaining strings into "entry" maps.
 
 ;; The final step in parsing is to turn the lines, which are now divided up
 ;; in a maximally informative way, into maps representing their contents.
