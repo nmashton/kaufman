@@ -11,10 +11,8 @@ cause the script problems.
 
 ## Usage
 
-Download the repository and run `lein deps` in its root directory to download dependencies.
-
 Run `lein run` to generate a CSV `kaufman-justeson.csv` in
-the project root directory. 
+the project root directory.
 
 ## License
 
