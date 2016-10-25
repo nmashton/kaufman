@@ -141,3 +141,18 @@
   #(with-meta
     (divide-data-chunk %)
     meta))
+
+(defn to-csv
+  "Converts the processed list of lexemes into a format suitable
+  for CSV output."
+  [lexemes]
+  (let [lxs-meta (map #(into {} [(meta %) %]) lexemes)
+        cols (keys (first lxs-meta))]
+    (cons
+      cols
+      (map
+        (fn [lexeme]
+          (map
+            #(% lexeme)
+            cols))
+        lxs-meta))))

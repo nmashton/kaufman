@@ -11,11 +11,10 @@ cause the script problems.
 
 ## Usage
 
-1. Download the repository and run `lein deps` in its root directory to download dependencies.
+Download the repository and run `lein deps` in its root directory to download dependencies.
 
-2. Load the kaufman-justeson.core namespace in a REPL.
-
-3. Do something cool with the value of `processed`.
+Run `lein run` to generate a CSV `kaufman-justeson.csv` in
+the project root directory. 
 
 ## License
 

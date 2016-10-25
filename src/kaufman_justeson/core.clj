@@ -2,7 +2,9 @@
 ;; defined in [kaufman.transducers](#kaufman.transducers).
 ;; Produces a list of lexemes tagged with metadata.
 (ns kaufman-justeson.core
-  (:use [kaufman-justeson.transducers]))
+  (:use [kaufman-justeson.transducers])
+  (:require [kaufman-justeson.functions :as kf])
+  (:require [clojure.data.csv :as csv]))
 
 (def processed
   (with-open [rdr (clojure.java.io/reader "./data/kaufman-footers-stripped.txt")]
@@ -21,3 +23,9 @@
           turn-lines-into-maps
           remove-blank-lexemes)
         (line-seq rdr)))))
+
+(defn -main
+  [& args]
+  (with-open [wrtr (clojure.java.io/writer "./kaufman-justeson.csv")]
+    (csv/write-csv wrtr (kf/to-csv processed))
+    (println "Wrote data to kaufman-justeson.csv")))
