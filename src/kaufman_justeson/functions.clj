@@ -34,47 +34,45 @@
       (.trim (first pat))
       (gensym "xx__"))))
 
-(defn handle-xx
-  "Generates a transducer to perform the parsing process on blocks delimited by
+(defn map-with-meta
+  "Helper function to generate functions that split lines
+  and push metadata down into the results."
+  [transducer meta-key meta-fn]
+  (fn [block]
+    (eduction
+      (comp
+        transducer
+        (map (fn [lines]
+              (with-meta
+                lines
+                (into
+                  (meta block)
+                  {meta-key (meta-fn lines)})))))
+      block)))
+
+(def handle-xx
+  "A function to perform the parsing process on blocks delimited by
   xx-lines."
-  [higher-meta]
-  (comp
+  (map-with-meta
     split-on-xx
-    (map
-      (fn [lines]
-        (with-meta
-          lines
-          (into
-            higher-meta
-            {:x-block (xx-line-semantics (first lines))}))))))
+    :x-block
+    #(xx-line-semantics (first %))))
 
-(defn handle-eq
-  "Generates a transducer to perform the parsing process on blocks delimited
+(def handle-eq
+  "A function to perform the parsing process on blocks delimited
   by ==-lines."
-  [higher-meta]
-  (comp
+  (map-with-meta
     split-on-eq
-    (map
-      (fn [lines]
-        (with-meta
-          lines
-          (into
-            higher-meta
-            {:eq-block (gensym "eq__")}))))))
+    :eq-block
+    (fn [_] (gensym "eq__"))))
 
-(defn handle-blanks
-  "Generates a transducer to perform the parsing process on blocks delimited
+(def handle-blanks
+  "A function to perform the parsing process on blocks delimited
   by blanks."
-  [higher-meta]
-  (comp
+  (map-with-meta
     split-on-blanks
-    (map
-      (fn [lines]
-        (with-meta
-          lines
-          (into
-            higher-meta
-            {:space-block (gensym "space__")}))))))
+    :space-block
+    (fn [_] (gensym "space__"))))
 
 (defn eliminable?
   "Identifies a string as crud that interferes with the creation of root maps.

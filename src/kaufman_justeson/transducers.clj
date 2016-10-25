@@ -66,7 +66,7 @@
 (def split-on-xx-delimiters
   (mapcat
     (fn [block]
-      (eduction (handle-xx (meta block)) block))))
+      (eduction (handle-xx block)))))
 
 ;; # Step 3. Parse next level of structure: ==-delimiters.
 
@@ -78,7 +78,7 @@
 (def split-on-eq-delimiters
   (mapcat
     (fn [block]
-      (eduction (handle-eq (meta block)) block))))
+      (eduction (handle-eq block)))))
 
 ;; # Step 4. Parse next level of structure: root headers.
 
@@ -172,7 +172,7 @@
   "Split the innermost sequence of lines on blanks."
   (mapcat
     (fn [block]
-      (eduction (handle-blanks (meta block)) block))))
+      (eduction (handle-blanks block)))))
 
 
 ;; # Step 6. Turn the remaining strings into "entry" maps.
