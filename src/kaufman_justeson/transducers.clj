@@ -99,54 +99,40 @@
 
 (def eliminate-garbage
   "Weed out initial blanks and remnants of xx-headers."
-  (map
-    (fn [lines]
-      (let [[fst & rst] lines]
-        (if (or
-              (.startsWith fst "     ")
-              (empty? (.trim fst)))
-            (if rst
-              (with-meta rst (meta lines))
-              rst)
-            (with-meta lines (meta lines)))))))
+  (map-with-meta
+    (fn [[fst & rst :as lines]]
+      (if (or
+            (.startsWith fst "     ")
+            (empty? (.trim fst)))
+          (if rst rst '())
+          lines))))
 
 (def eliminate-more-garbage
   "Weed out totally empty parts of the structure.
   This prevents problems shortly down the road."
-  (map
-    (fn [lines]
-      (with-meta
-        (filter #(not (empty? (.trim %))) lines)
-        (meta lines)))))
+  (map-with-meta
+    (fn [lines] (filter #(not (empty? (.trim %))) lines))))
 
 (def eliminate-even-more-garbage
   "Perform yet another round of cleanups, using the trash-detection
   function `eliminable`."
-  (map
-    (fn [lines]
-      (with-meta
-        (filter (complement eliminable?) lines)
-        (meta lines)))))
+  (map-with-meta
+    #(filter (complement eliminable?) %)))
+
 
 (def group-by-root-lines
   "Group lines by root headers."
   (comp
     ; input: [[:a, :b, :c], [:d, :e, :f]]
     ; output: [[[:a], [:b, :c]], [[:d], [:e, :f]]]
-    (map
-      (fn [lines]
-        (with-meta
-          (partition-by root? lines)
-          (meta lines))))
+    (map-with-meta
+      #(partition-by root? %))
     ; fixing the defective groups
-    (map
-      (fn [groups]
-        (with-meta
-          (case (count groups)
-            1 (cons '() groups)
-            3 (rest groups)
-            groups)
-          (meta groups))))
+    (map-with-meta
+      #(case (count %)
+          1 (cons '() %)
+          3 (rest %)
+          %))
     ; creating pairs
     (mapcat
       (fn [groups]

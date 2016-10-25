@@ -34,7 +34,7 @@
       (.trim (first pat))
       (gensym "xx__"))))
 
-(defn map-with-meta
+(defn split-with-meta
   "Helper function to generate functions that split lines
   and push metadata down into the results."
   [transducer meta-key meta-fn]
@@ -53,7 +53,7 @@
 (def handle-xx
   "A function to perform the parsing process on blocks delimited by
   xx-lines."
-  (map-with-meta
+  (split-with-meta
     split-on-xx
     :x-block
     #(xx-line-semantics (first %))))
@@ -61,7 +61,7 @@
 (def handle-eq
   "A function to perform the parsing process on blocks delimited
   by ==-lines."
-  (map-with-meta
+  (split-with-meta
     split-on-eq
     :eq-block
     (fn [_] (gensym "eq__"))))
@@ -69,10 +69,20 @@
 (def handle-blanks
   "A function to perform the parsing process on blocks delimited
   by blanks."
-  (map-with-meta
+  (split-with-meta
     split-on-blanks
     :space-block
     (fn [_] (gensym "space__"))))
+
+(defn map-with-meta
+  "Helper function to generate transducers that apply functions
+  to lines and push down metadata."
+  [f]
+  (map
+    (fn [lines]
+      (with-meta
+        (f lines)
+        (meta lines)))))
 
 (defn eliminable?
   "Identifies a string as crud that interferes with the creation of root maps.

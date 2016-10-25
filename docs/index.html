@@ -2915,7 +2915,7 @@ defined elsewhere.</p>
       (.trim (first pat))
       (gensym &quot;xx__&quot;))))</pre></td></tr><tr><td class="docs"><p>Helper function to generate functions that split lines
   and push metadata down into the results.</p>
-</td><td class="codes"><pre class="brush: clojure">(defn map-with-meta
+</td><td class="codes"><pre class="brush: clojure">(defn split-with-meta
   [transducer meta-key meta-fn]
   (fn [block]
     (eduction
@@ -2930,22 +2930,30 @@ defined elsewhere.</p>
       block)))</pre></td></tr><tr><td class="docs"><p>A function to perform the parsing process on blocks delimited by
   xx-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(def handle-xx
-  (map-with-meta
+  (split-with-meta
     split-on-xx
     :x-block
     #(xx-line-semantics (first %))))</pre></td></tr><tr><td class="docs"><p>A function to perform the parsing process on blocks delimited
   by ==-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(def handle-eq
-  (map-with-meta
+  (split-with-meta
     split-on-eq
     :eq-block
     (fn [_] (gensym &quot;eq__&quot;))))</pre></td></tr><tr><td class="docs"><p>A function to perform the parsing process on blocks delimited
   by blanks.</p>
 </td><td class="codes"><pre class="brush: clojure">(def handle-blanks
-  (map-with-meta
+  (split-with-meta
     split-on-blanks
     :space-block
-    (fn [_] (gensym &quot;space__&quot;))))</pre></td></tr><tr><td class="docs"><p>Identifies a string as crud that interferes with the creation of root maps.
+    (fn [_] (gensym &quot;space__&quot;))))</pre></td></tr><tr><td class="docs"><p>Helper function to generate transducers that apply functions
+  to lines and push down metadata.</p>
+</td><td class="codes"><pre class="brush: clojure">(defn map-with-meta
+  [f]
+  (map
+    (fn [lines]
+      (with-meta
+        (f lines)
+        (meta lines)))))</pre></td></tr><tr><td class="docs"><p>Identifies a string as crud that interferes with the creation of root maps.
   This is really just a dumping-ground for bad parts of the dictionary...</p>
 </td><td class="codes"><pre class="brush: clojure">(defn eliminable?
   [s]
@@ -3074,48 +3082,33 @@ of xx-headers from the tops of blocks of content, as these will
 foil our attempts to detect root headers if left unattended.</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>Weed out initial blanks and remnants of xx-headers.</p>
 </td><td class="codes"><pre class="brush: clojure">(def eliminate-garbage
-  (map
-    (fn [lines]
-      (let [[fst &amp; rst] lines]
-        (if (or
-              (.startsWith fst &quot;     &quot;)
-              (empty? (.trim fst)))
-            (if rst
-              (with-meta rst (meta lines))
-              rst)
-            (with-meta lines (meta lines)))))))</pre></td></tr><tr><td class="docs"><p>Weed out totally empty parts of the structure.
+  (map-with-meta
+    (fn [[fst &amp; rst :as lines]]
+      (if (or
+            (.startsWith fst &quot;     &quot;)
+            (empty? (.trim fst)))
+          (if rst rst '())
+          lines))))</pre></td></tr><tr><td class="docs"><p>Weed out totally empty parts of the structure.
   This prevents problems shortly down the road.</p>
 </td><td class="codes"><pre class="brush: clojure">(def eliminate-more-garbage
-  (map
-    (fn [lines]
-      (with-meta
-        (filter #(not (empty? (.trim %))) lines)
-        (meta lines)))))</pre></td></tr><tr><td class="docs"><p>Perform yet another round of cleanups, using the trash-detection
+  (map-with-meta
+    (fn [lines] (filter #(not (empty? (.trim %))) lines))))</pre></td></tr><tr><td class="docs"><p>Perform yet another round of cleanups, using the trash-detection
   function <code>eliminable</code>.</p>
 </td><td class="codes"><pre class="brush: clojure">(def eliminate-even-more-garbage
-  (map
-    (fn [lines]
-      (with-meta
-        (filter (complement eliminable?) lines)
-        (meta lines)))))</pre></td></tr><tr><td class="docs"><p>Group lines by root headers.</p>
+  (map-with-meta
+    #(filter (complement eliminable?) %)))</pre></td></tr><tr><td class="docs"><p>Group lines by root headers.</p>
 </td><td class="codes"><pre class="brush: clojure">(def group-by-root-lines
   (comp
     ; input: [[:a, :b, :c], [:d, :e, :f]]
     ; output: [[[:a], [:b, :c]], [[:d], [:e, :f]]]
-    (map
-      (fn [lines]
-        (with-meta
-          (partition-by root? lines)
-          (meta lines))))
+    (map-with-meta
+      #(partition-by root? %))
     ; fixing the defective groups
-    (map
-      (fn [groups]
-        (with-meta
-          (case (count groups)
-            1 (cons '() groups)
-            3 (rest groups)
-            groups)
-          (meta groups))))
+    (map-with-meta
+      #(case (count %)
+          1 (cons '() %)
+          3 (rest %)
+          %))
     ; creating pairs
     (mapcat
       (fn [groups]
