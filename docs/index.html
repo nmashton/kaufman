@@ -2913,7 +2913,7 @@ defined elsewhere.</p>
   (let [pat (re-seq #&quot;^\s{30,}\w+&quot; x)]
     (if pat
       (.trim (first pat))
-      (gensym &quot;xx__&quot;))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited by
+      (gensym &quot;xx__&quot;))))</pre></td></tr><tr><td class="docs"><p>Generates a transducer to perform the parsing process on blocks delimited by
   xx-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-xx
   [higher-meta]
@@ -2925,7 +2925,7 @@ defined elsewhere.</p>
           lines
           (into
             higher-meta
-            {:x-block (xx-line-semantics (first lines))}))))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited
+            {:x-block (xx-line-semantics (first lines))}))))))</pre></td></tr><tr><td class="docs"><p>Generates a transducer to perform the parsing process on blocks delimited
   by ==-lines.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-eq
   [higher-meta]
@@ -2937,7 +2937,7 @@ defined elsewhere.</p>
           lines
           (into
             higher-meta
-            {:eq-block (gensym &quot;eq__&quot;)}))))))</pre></td></tr><tr><td class="docs"><p>A transducer to perform the parsing process on blocks delimited
+            {:eq-block (gensym &quot;eq__&quot;)}))))))</pre></td></tr><tr><td class="docs"><p>Generates a transducer to perform the parsing process on blocks delimited
   by blanks.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn handle-blanks
   [higher-meta]

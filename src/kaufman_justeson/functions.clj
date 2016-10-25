@@ -35,7 +35,7 @@
       (gensym "xx__"))))
 
 (defn handle-xx
-  "A transducer to perform the parsing process on blocks delimited by
+  "Generates a transducer to perform the parsing process on blocks delimited by
   xx-lines."
   [higher-meta]
   (comp
@@ -49,7 +49,7 @@
             {:x-block (xx-line-semantics (first lines))}))))))
 
 (defn handle-eq
-  "A transducer to perform the parsing process on blocks delimited
+  "Generates a transducer to perform the parsing process on blocks delimited
   by ==-lines."
   [higher-meta]
   (comp
@@ -63,7 +63,7 @@
             {:eq-block (gensym "eq__")}))))))
 
 (defn handle-blanks
-  "A transducer to perform the parsing process on blocks delimited
+  "Generates a transducer to perform the parsing process on blocks delimited
   by blanks."
   [higher-meta]
   (comp
